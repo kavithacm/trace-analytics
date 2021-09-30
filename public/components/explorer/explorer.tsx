@@ -36,6 +36,7 @@ import { NoResults } from './no_results';
 import { HitsCounter } from './hits_counter/hits_counter';
 import { TimechartHeader } from './timechart_header';
 import { ExplorerVisualizations } from './visualizations';
+import { IndexDropdown } from '../common/search/searchindex';
 import {
   IField,
   IQueryTab
@@ -463,6 +464,7 @@ export const Explorer = ({
         onLiveStreamChange={ handleLiveStreamChecked }
         actionItems={ actionItems }
       />
+      <IndexDropdown dslService={dslService} />
       <EuiTabbedContent
         className="mainContentTabs"
         initialSelectedTab={ memorizedMainContentTabs[0] }
