@@ -5,7 +5,7 @@
 
 import './search.scss';
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   EuiFlexGroup,
   EuiButton,
@@ -15,17 +15,15 @@ import {
   EuiPopoverFooter,
   EuiBadge,
   EuiContextMenuPanel,
-  EuiText,
   EuiToolTip,
 } from '@elastic/eui';
-import _, { reduce } from 'lodash';
+import _ from 'lodash';
 import { DatePicker } from './date_picker';
 import '@algolia/autocomplete-theme-classic';
 import { Autocomplete } from './autocomplete';
 import { SavePanel } from '../../explorer/save_panel';
 import { PPLReferenceFlyout } from '../helpers';
 import { uiSettingsService } from '../../../../common/utils';
-import { HitsCounter } from '../../explorer/hits_counter';
 import { APP_ANALYTICS_TAB_ID_REGEX } from '../../../../common/constants/explorer';
 export interface IQueryBarProps {
   query: string;
@@ -73,7 +71,6 @@ export const Search = (props: any) => {
     closeLiveTailPopover,
     popoverItems,
     isLiveTailOn,
-    countDistribution,
     selectedSubTabId,
     searchBarConfigs = {},
     getSuggestions,
@@ -86,9 +83,6 @@ export const Search = (props: any) => {
 
   const [isSavePanelOpen, setIsSavePanelOpen] = useState(false);
   const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
-  // const [liveHits, setLiveHits] = useState(0);
-  // const liveHitsRef = useRef(0);
-  // liveHitsRef.current = liveHits;
 
   const closeFlyout = () => {
     setIsFlyoutVisible(false);
@@ -117,19 +111,6 @@ export const Search = (props: any) => {
       Save
     </EuiButton>
   );
-
-  // const totalHits = useMemo(() => {
-  //  if (isLiveTailOn && countDistribution?.data) {    
-  //   let hits = reduce(
-  //     countDistribution['data']['count()'],
-  //     (sum, n) => {
-  //       return sum + n;
-  //     },
-  //     liveHits
-  //     )
-  //     setLiveHits(hits);
-  //     return hits
-  // }} , [countDistribution?.data]);
 
   return (
     <div className="globalQueryBar">
@@ -170,18 +151,6 @@ export const Search = (props: any) => {
         <EuiFlexItem grow={false} />
         <EuiFlexItem className="euiFlexItem--flexGrowZero event-date-picker" grow={false}>
           {!isLiveTailOn && (
-          //   <EuiFlexGroup justifyContent="center" alignItems="center">
-          //     <EuiText size="s" textAlign="left" color="default">
-          //       <h3>Live - </h3>
-          //     </EuiText>
-          //     <EuiFlexItem grow={false}>
-          //       <HitsCounter
-          //         hits={totalHits}
-          //         showResetButton={false}
-          //         onResetQuery={() => { } } />
-          //     </EuiFlexItem>
-          //   </EuiFlexGroup>
-          // ) : (
             <DatePicker
               startTime={startTime}
               endTime={endTime}

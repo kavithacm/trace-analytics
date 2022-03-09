@@ -22,6 +22,7 @@ import {
   EuiContextMenuItem,
   EuiButtonToggle,
 } from '@elastic/eui';
+import dateMath from '@elastic/datemath';
 import classNames from 'classnames';
 import { Search } from '../common/search/search';
 import { CountDistribution } from './visualizations/count_distribution';
@@ -77,7 +78,6 @@ import {
   getSuggestionsAfterSource,
   onItemSelect,
 } from '../common/search/autocomplete_logic';
-import datemath from '@elastic/datemath';
 import { formatError, findAutoInterval } from './utils';
 
 const TYPE_TAB_MAPPING = {
@@ -177,11 +177,9 @@ export const Explorer = ({
     document.addEventListener("visibilitychange", function() {
       if (document.hidden) {
         setBrowserTabFocus(false);
-        // console.log("other tabs");
       }
       else {
         setBrowserTabFocus(true);
-        // console.log("current tab");
       }
     });
   });
@@ -675,9 +673,7 @@ export const Explorer = ({
                     </h2>
                     <div className="dscDiscover">
                       {isLiveTailOnRef.current && (
-                        // <div className="liveStream">
                           <>
-                            {/* // <div className="liveStream"> */}
                             <EuiSpacer size="m" /><EuiFlexGroup justifyContent="center" alignItems="center">
                               <EuiLoadingSpinner size="l" />
                               <EuiText textAlign="center" data-test-subj="LiveStreamIndicator_on">
@@ -693,8 +689,7 @@ export const Explorer = ({
                                 <strong>since {liveTimestamp}</strong>
                               </EuiFlexItem>
                             </EuiFlexGroup><EuiSpacer size="m" />
-                            </>
-                        // </div>
+                          </>
                       )}
                       <DataGrid
                         http={http}
@@ -1071,7 +1066,6 @@ export const Explorer = ({
       <EuiButtonToggle
         label={liveTailNameRef.current}
         iconType={isLiveTailOn ? 'stop' : 'play'}
-        // isLoading={isLiveTailOn ? true : false}
         iconSide="left"
         onClick={() => setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen)}
         onChange={onToggleChange}
@@ -1095,14 +1089,12 @@ export const Explorer = ({
     setIsLiveTailOn(true);
     setToast('Live tail On', 'success');
     setIsLiveTailPopoverOpen(false);
-    setLiveTimestamp(datemath.parse(endTime)?.utc().format(DATE_PICKER_FORMAT));
+    setLiveTimestamp(dateMath.parse(endTime)?.utc().format(DATE_PICKER_FORMAT));
     setLiveHits(0);
     await sleep(2000);
     const curLiveTailname = liveTailNameRef.current;
     while (isLiveTailOnRef.current === true && curLiveTailname === liveTailNameRef.current) {
       handleLiveTailSearch(startTime, endTime);
-      // console.log("selectedContentTabId: ",selectedContentTabId);
-      // console.log("TAB_CHART_ID", TAB_CHART_ID);
       if ((liveTailTabIdRef.current !== curSelectedTabId.current)) {
         setIsLiveTailOn(false);
         isLiveTailOnRef.current = false;
@@ -1114,7 +1106,6 @@ export const Explorer = ({
   };
 
   useEffect(() => {
-    console.log("in use effect: ", selectedContentTabId);
     if ((isEqual(selectedContentTabId, TAB_CHART_ID)) || (!browserTabFocus)) {
       setLiveTailName('Live');
       setIsLiveTailOn(false);
@@ -1263,7 +1254,6 @@ export const Explorer = ({
           closeLiveTailPopover={() => setIsLiveTailPopoverOpen(false)}
           popoverItems={popoverItems}
           isLiveTailOn={isLiveTailOnRef.current}
-          countDistribution={countDistribution}
           selectedSubTabId={selectedContentTabId}
           searchBarConfigs={searchBarConfigs}
           getSuggestions={appLogEvents ? getSuggestionsAfterSource : getFullSuggestions}
