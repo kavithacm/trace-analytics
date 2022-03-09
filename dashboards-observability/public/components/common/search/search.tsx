@@ -86,9 +86,9 @@ export const Search = (props: any) => {
 
   const [isSavePanelOpen, setIsSavePanelOpen] = useState(false);
   const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
-  const [liveHits, setLiveHits] = useState(0);
-  const liveHitsRef = useRef(0);
-  liveHitsRef.current = liveHits;
+  // const [liveHits, setLiveHits] = useState(0);
+  // const liveHitsRef = useRef(0);
+  // liveHitsRef.current = liveHits;
 
   const closeFlyout = () => {
     setIsFlyoutVisible(false);
@@ -118,18 +118,18 @@ export const Search = (props: any) => {
     </EuiButton>
   );
 
-  const totalHits = useMemo(() => {
-   if (isLiveTailOn && countDistribution?.data) {    
-    let hits = reduce(
-      countDistribution['data']['count()'],
-      (sum, n) => {
-        return sum + n;
-      },
-      liveHits
-      )
-      setLiveHits(hits);
-      return hits
-  }} , [countDistribution?.data]);
+  // const totalHits = useMemo(() => {
+  //  if (isLiveTailOn && countDistribution?.data) {    
+  //   let hits = reduce(
+  //     countDistribution['data']['count()'],
+  //     (sum, n) => {
+  //       return sum + n;
+  //     },
+  //     liveHits
+  //     )
+  //     setLiveHits(hits);
+  //     return hits
+  // }} , [countDistribution?.data]);
 
   return (
     <div className="globalQueryBar">
@@ -169,19 +169,19 @@ export const Search = (props: any) => {
         </EuiFlexItem>
         <EuiFlexItem grow={false} />
         <EuiFlexItem className="euiFlexItem--flexGrowZero event-date-picker" grow={false}>
-          {isLiveTailOn && countDistribution?.data ? (
-            <EuiFlexGroup justifyContent="center" alignItems="center">
-              <EuiText size="s" textAlign="left" color="default">
-                <h3>Live - </h3>
-              </EuiText>
-              <EuiFlexItem grow={false}>
-                <HitsCounter
-                  hits={totalHits}
-                  showResetButton={false}
-                  onResetQuery={() => { } } />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          ) : (
+          {!isLiveTailOn && (
+          //   <EuiFlexGroup justifyContent="center" alignItems="center">
+          //     <EuiText size="s" textAlign="left" color="default">
+          //       <h3>Live - </h3>
+          //     </EuiText>
+          //     <EuiFlexItem grow={false}>
+          //       <HitsCounter
+          //         hits={totalHits}
+          //         showResetButton={false}
+          //         onResetQuery={() => { } } />
+          //     </EuiFlexItem>
+          //   </EuiFlexGroup>
+          // ) : (
             <DatePicker
               startTime={startTime}
               endTime={endTime}
@@ -194,6 +194,7 @@ export const Search = (props: any) => {
               handleTimeRangePickerRefresh={handleTimeRangePickerRefresh} />
           )}
           </EuiFlexItem>
+          {!showSavePanelOptionsList && (
           <EuiFlexItem className="euiFlexItem--flexGrowZero live-tail">
             <EuiPopover
               panelPaddingSize="none"
@@ -204,6 +205,7 @@ export const Search = (props: any) => {
               <EuiContextMenuPanel items={popoverItems} />
             </EuiPopover>
           </EuiFlexItem>
+          )}
         {showSaveButton && searchBarConfigs[selectedSubTabId]?.showSaveButton && (
           <>
             <EuiFlexItem key={'search-save-'} className="euiFlexItem--flexGrowZero">
