@@ -674,7 +674,8 @@ export const Explorer = ({
                     <div className="dscDiscover">
                       {isLiveTailOnRef.current && (
                           <>
-                            <EuiSpacer size="m" /><EuiFlexGroup justifyContent="center" alignItems="center">
+                            <EuiSpacer size="m" />
+                            <EuiFlexGroup justifyContent="center" alignItems="center" gutterSize='m'>
                               <EuiLoadingSpinner size="l" />
                               <EuiText textAlign="center" data-test-subj="LiveStreamIndicator_on">
                                 <strong>&nbsp;&nbsp;Live streaming</strong>
