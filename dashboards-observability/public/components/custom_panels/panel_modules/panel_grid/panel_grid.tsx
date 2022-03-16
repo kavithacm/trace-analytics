@@ -56,6 +56,9 @@ type Props = {
   showFlyout: (isReplacement?: boolean | undefined, replaceVizId?: string | undefined) => void;
   editActionType: string;
   setEditVizId?: any;
+  isLiveTailOn: boolean;
+  liveTailName: string;
+  sleepTime: number;
 };
 
 export const PanelGrid = ({
@@ -75,6 +78,9 @@ export const PanelGrid = ({
   pplFilterValue,
   showFlyout,
   editActionType,
+  isLiveTailOn,
+  liveTailName,
+  sleepTime,
 }: Props) => {
   const [currentLayout, setCurrentLayout] = useState<Layout[]>([]);
   const [postEditLayout, setPostEditLayout] = useState<Layout[]>([]);
@@ -106,6 +112,9 @@ export const PanelGrid = ({
           pplFilterValue={pplFilterValue}
           showFlyout={showFlyout}
           removeVisualization={removeVisualization}
+          isLiveTailOn={isLiveTailOn}
+          liveTailName={liveTailName}
+          sleepTime={sleepTime}
         />
       )
     );
@@ -184,7 +193,7 @@ export const PanelGrid = ({
 
   useEffect(() => {
     loadVizComponents();
-  }, [onRefresh]);
+  }, [onRefresh, isLiveTailOn, sleepTime]);
 
   useEffect(() => {
     loadVizComponents();

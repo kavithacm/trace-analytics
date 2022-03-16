@@ -9,7 +9,10 @@ import {
   EuiBadge,
   EuiBreadcrumb,
   EuiButton,
+  EuiButtonToggle,
   EuiContextMenu,
+  EuiContextMenuItem,
+  EuiContextMenuPanel,
   EuiContextMenuPanelDescriptor,
   EuiFlexGroup,
   EuiFlexItem,
@@ -28,7 +31,7 @@ import {
   ShortDate,
 } from '@elastic/eui';
 import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState, useMemo } from 'react';
 import { DurationRange } from '@elastic/eui/src/components/date_picker/types';
 import moment from 'moment';
 import DSLService from '../../services/requests/dsl';
@@ -144,6 +147,14 @@ export const CustomPanelView = ({
   const [panelsMenuPopover, setPanelsMenuPopover] = useState(false);
   const [editActionType, setEditActionType] = useState('');
   const [isHelpFlyoutVisible, setHelpIsFlyoutVisible] = useState(false);
+
+  const [isLiveTailPopoverOpen, setIsLiveTailPopoverOpen] = useState(false);
+  const [isLiveTailOn, setIsLiveTailOn] = useState(false);
+  const [liveTailPanelId, setLiveTailPanelId] = useState('');
+  const [liveTailName, setLiveTailName] = useState('Live');
+  const [liveTailToggle, setLiveTailToggle] = useState(false);
+  const [sleepTime, setSleepTime] = useState(0);
+  const [browserTabFocus, setBrowserTabFocus] = useState(true);
 
   const appPanel = page === 'app';
 
@@ -561,6 +572,142 @@ export const CustomPanelView = ({
     chrome.setBreadcrumbs(newBreadcrumb);
   }, [panelId, openPanelName]);
 
+  useEffect(() => {
+    document.addEventListener("visibilitychange", function() {
+      if (document.hidden) {
+        setBrowserTabFocus(false);
+      }
+      else {
+        setBrowserTabFocus(true);
+      }
+    });
+  });
+
+  const onToggleChange = (e: {
+    target: { checked: boolean | ((prevState: boolean) => boolean) };
+  }) => {
+    setLiveTailToggle(e.target.checked);
+    setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen);
+  };
+
+  const liveTailButton = useMemo(() => {
+    return (
+      <EuiButtonToggle
+        label={liveTailName}
+        iconType={isLiveTailOn ? "refresh" : "play"}
+        iconSide="left"
+        onClick={() => setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen)}
+        onChange={onToggleChange}
+        data-test-subj="eventLiveTail"
+      />
+    );
+  }, [isLiveTailPopoverOpen, liveTailToggle, onToggleChange, isLiveTailOn]);
+
+  const liveTailLoop = async (
+    name: string,
+    startTime: string,
+    endTime: string,
+    delayTime: number
+  ) => {
+    setLiveTailName(name);
+    setLiveTailPanelId(panelId);
+    setStartTime(startTime);
+    setEndTime(endTime);
+    setSleepTime(delayTime);
+    setIsLiveTailOn(true);
+    setToast('Live tail On', 'success');
+    setIsLiveTailPopoverOpen(false);
+  };
+
+  const popoverItems: ReactElement[] = [
+    <EuiContextMenuItem
+      key="5s"
+      onClick={async () => {
+        liveTailLoop('5s', 'now-5s', 'now', 5000);
+      }}
+    >
+      5s
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      data-test-subj="eventLiveTail__delay10"
+      key="10s"
+      onClick={async () => {
+        liveTailLoop('10s', 'now-10s', 'now', 10000);
+      }}
+    >
+      10s
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="30s"
+      onClick={async () => {
+        liveTailLoop('30s', 'now-30s', 'now', 30000);
+      }}
+    >
+      30s
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="1m"
+      onClick={async () => {
+        liveTailLoop('1m', 'now-1m', 'now', 60000);
+      }}
+    >
+      1m
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="5m"
+      onClick={async () => {
+        liveTailLoop('5m', 'now-5m', 'now', 60000 * 5);
+      }}
+    >
+      5m
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="15m"
+      onClick={async () => {
+        liveTailLoop('15m', 'now-15m', 'now', 60000 * 15);
+      }}
+    >
+      15m
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="30m"
+      onClick={async () => {
+        liveTailLoop('30m', 'now-30m', 'now', 60000 * 30);
+      }}
+    >
+      30m
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="1h"
+      onClick={async () => {
+        liveTailLoop('1h', 'now-1h', 'now', 60000 * 60);
+      }}
+    >
+      1h
+    </EuiContextMenuItem>,
+    <EuiContextMenuItem
+      key="2h"
+      onClick={async () => {
+        liveTailLoop('2h', 'now-2h', 'now', 60000 * 120);
+      }}
+    >
+      2h
+    </EuiContextMenuItem>,
+  ];
+
+  const stopLive = () => {
+    setLiveTailName('Live');
+    setIsLiveTailOn(false);
+    setToast('Live tail Off', 'success');
+    setIsLiveTailPopoverOpen(false);
+  }
+
+  useEffect(() => {
+    if ((!browserTabFocus) || (panelId !== liveTailPanelId)) {
+      stopLive();
+    }
+  }, [panelId, browserTabFocus]);
+
   return (
     <div>
       <EuiPage id={`panelView${appPanel ? 'InApp' : ''}`}>
@@ -668,16 +815,39 @@ export const CustomPanelView = ({
                   inputDisabled={inputDisabled}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiSuperDatePicker
-                  dateFormat={uiSettingsService.get('dateFormat')}
-                  start={startTime}
-                  end={endTime}
-                  onTimeChange={onDatePickerChange}
-                  recentlyUsedRanges={recentlyUsedRanges}
-                  isDisabled={dateDisabled}
-                />
+              {!isLiveTailOn && (
+                <EuiFlexItem grow={false}>
+                  <EuiSuperDatePicker
+                    dateFormat={uiSettingsService.get('dateFormat')}
+                    start={startTime}
+                    end={endTime}
+                    onTimeChange={onDatePickerChange}
+                    recentlyUsedRanges={recentlyUsedRanges}
+                    isDisabled={dateDisabled}
+                  />
+                </EuiFlexItem>
+              )}
+              <EuiFlexItem className="euiFlexItem--flexGrowZero live-tail">
+                <EuiPopover
+                  panelPaddingSize="none"
+                  button={liveTailButton}
+                  isOpen={isLiveTailPopoverOpen}
+                  closePopover={() => setIsLiveTailPopoverOpen(false)}
+                >
+                  <EuiContextMenuPanel items={popoverItems} />
+                </EuiPopover>
               </EuiFlexItem>
+              {isLiveTailOn && (
+                <EuiFlexItem grow={false}>
+                  <EuiButton
+                    iconType="stop"
+                    onClick={() => stopLive()}
+                    color="danger"
+                  >
+                    Stop
+                  </EuiButton>
+                </EuiFlexItem>
+              )}
               {appPanel && (
                 <>
                   {editMode ? (
@@ -746,6 +916,9 @@ export const CustomPanelView = ({
               showFlyout={showFlyout}
               editActionType={editActionType}
               switchToEditViz={switchToEditViz}
+              isLiveTailOn={isLiveTailOn}
+              liveTailName={liveTailName}
+              sleepTime={sleepTime}
             />
           </EuiPageContentBody>
         </EuiPageBody>
@@ -756,3 +929,4 @@ export const CustomPanelView = ({
     </div>
   );
 };
+

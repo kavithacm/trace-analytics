@@ -110,12 +110,23 @@ const pplServiceRequestor = async (
   type: string,
   setVisualizationData: React.Dispatch<React.SetStateAction<any[]>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsError: React.Dispatch<React.SetStateAction<string>>
+  setIsError: React.Dispatch<React.SetStateAction<string>>,
+  savedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
+  setSavedResponse: React.Dispatch<React.SetStateAction<any[]>>,
+  isLiveTailOn: boolean
 ) => {
   await pplService
     .fetch({ query: finalQuery, format: 'viz' })
     .then((res) => {
       if (res === undefined) setIsError('Please check the validity of PPL Filter');
+      if (isLiveTailOn){
+        res.jsonData = res.jsonData.concat(savedResponse.jsonData);
+        Object.keys(res.data).forEach(reskey => {
+          res.data[reskey] = res.data[reskey].concat(savedResponse.data[reskey]);
+        });
+        res.size = res.size + savedResponse.size;
+      }
+      setSavedResponse(res);
       setVisualizationData(res);
     })
     .catch((error: Error) => {
@@ -158,7 +169,10 @@ export const getQueryResponse = (
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setIsError: React.Dispatch<React.SetStateAction<string>>,
   filterQuery = '',
-  timestampField = 'timestamp'
+  timestampField = 'timestamp',
+  savedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
+  setSavedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
+  isLiveTailOn: boolean
 ) => {
   setIsLoading(true);
   setIsError('');
@@ -174,7 +188,7 @@ export const getQueryResponse = (
     return;
   }
 
-  pplServiceRequestor(pplService, finalQuery, type, setVisualizationData, setIsLoading, setIsError);
+  pplServiceRequestor(pplService, finalQuery, type, setVisualizationData, setIsLoading, setIsError, savedResponse, setSavedResponse, isLiveTailOn);
 };
 
 // Fetches savedVisualization by Id and runs getQueryResponse
@@ -190,7 +204,10 @@ export const renderSavedVisualization = async (
   setVisualizationData: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
   setVisualizationMetaData: React.Dispatch<React.SetStateAction<undefined>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsError: React.Dispatch<React.SetStateAction<string>>
+  setIsError: React.Dispatch<React.SetStateAction<string>>,
+  savedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
+  setSavedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
+  isLiveTailOn: boolean
 ) => {
   setIsLoading(true);
   setIsError('');
@@ -223,7 +240,10 @@ export const renderSavedVisualization = async (
     setIsLoading,
     setIsError,
     filterQuery,
-    visualization.timeField
+    visualization.timeField,
+    savedResponse,
+    setSavedResponse,
+    isLiveTailOn
   );
 };
 

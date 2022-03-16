@@ -58,6 +58,9 @@ interface Props {
   cloneVisualization?: (visualzationTitle: string, savedVisualizationId: string) => void;
   showFlyout?: (isReplacement?: boolean | undefined, replaceVizId?: string | undefined) => void;
   removeVisualization?: (visualizationId: string) => void;
+  isLiveTailOn: boolean;
+  liveTailName: string;
+  sleepTime: number;
 }
 
 export const VisualizationContainer = ({
@@ -76,6 +79,9 @@ export const VisualizationContainer = ({
   cloneVisualization,
   showFlyout,
   removeVisualization,
+  isLiveTailOn,
+  liveTailName,
+  sleepTime,
 }: Props) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [disablePopover, setDisablePopover] = useState(false);
@@ -87,6 +93,9 @@ export const VisualizationContainer = ({
   const [isError, setIsError] = useState('');
   const onActionsMenuClick = () => setIsPopoverOpen((isPopoverOpen) => !isPopoverOpen);
   const closeActionsMenu = () => setIsPopoverOpen(false);
+  const [savedResponse, setSavedResponse] = useState<Plotly.Data[]>([]);
+  const [changeSleep, setChangeSleep] = useState(0);
+  const [intervalId, setIntervalId] = useState(0);
 
   let popoverPanel = [
     <EuiContextMenuItem
@@ -142,7 +151,10 @@ export const VisualizationContainer = ({
       setVisualizationData,
       setVisualizationMetaData,
       setIsLoading,
-      setIsError
+      setIsError,
+      savedResponse,
+      setSavedResponse,
+      isLiveTailOn
     );
   };
 
@@ -170,6 +182,26 @@ export const VisualizationContainer = ({
   useEffect(() => {
     loadVisaulization();
   }, [onRefresh]);
+
+  useEffect(() => {
+    if (!isLiveTailOn) {
+      clearInterval(intervalId);
+      setIntervalId(0);
+      return;
+    }
+
+    if (sleepTime !== changeSleep) {
+      clearInterval(intervalId);
+      setIntervalId(0);
+    }
+
+    const newIntervalId = setInterval(() => {
+      loadVisaulization();
+      console.log("sleep time state",sleepTime);
+    }, sleepTime);
+    setIntervalId(newIntervalId);
+    setChangeSleep(sleepTime);
+  }, [isLiveTailOn, sleepTime]);
 
   useEffect(() => {
     editMode ? setDisablePopover(true) : setDisablePopover(false);
