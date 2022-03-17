@@ -703,10 +703,10 @@ export const CustomPanelView = ({
   }
 
   useEffect(() => {
-    if ((!browserTabFocus) || (panelId !== liveTailPanelId)) {
-      stopLive();
+    if (!browserTabFocus && isLiveTailOn) {
+        stopLive();
     }
-  }, [panelId, browserTabFocus]);
+  }, [browserTabFocus]);
 
   return (
     <div>

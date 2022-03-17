@@ -201,6 +201,12 @@ export const VisualizationContainer = ({
     }, sleepTime);
     setIntervalId(newIntervalId);
     setChangeSleep(sleepTime);
+    return () => {
+      const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
+      for (let i = 1; i < interval_id; i++) {
+        window.clearInterval(i);
+      }
+    }
   }, [isLiveTailOn, sleepTime]);
 
   useEffect(() => {
