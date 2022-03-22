@@ -197,7 +197,6 @@ export const VisualizationContainer = ({
 
     const newIntervalId = setInterval(() => {
       loadVisaulization();
-      console.log("sleep time state",sleepTime);
     }, sleepTime);
     setIntervalId(newIntervalId);
     setChangeSleep(sleepTime);

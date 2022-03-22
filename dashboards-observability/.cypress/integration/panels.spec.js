@@ -469,3 +469,20 @@ describe('Add samples and clean up all test data', () => {
     cy.get('.euiTextAlign').contains('No Operational Panels').should('exist');
   });
 });
+
+describe('Live tail on/off', () => {
+  it('Move to test panel', () => {
+    moveToTestPanel();
+  });
+
+  it('Switch on/off live tail', () => {
+    cy.get('[data-test-subj=panelsLiveTail]').click();
+    cy.get('[data-test-subj=panelsLiveTail__delay10]').click();
+    cy.wait(delay * 2);
+    cy.get('.euiToastHeader__title').contains('On').should('exist');
+
+    cy.get('[data-test-subj=panelsLiveTail__off').click();
+    cy.wait(delay * 2);
+    cy.get('.euiToastHeader__title').contains('Off').should('exist');
+  });
+});

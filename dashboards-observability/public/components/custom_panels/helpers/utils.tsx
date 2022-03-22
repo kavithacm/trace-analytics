@@ -119,13 +119,13 @@ const pplServiceRequestor = async (
     .fetch({ query: finalQuery, format: 'viz' })
     .then((res) => {
       if (res === undefined) setIsError('Please check the validity of PPL Filter');
-      if (isLiveTailOn){
-        res.jsonData = res.jsonData.concat(savedResponse.jsonData);
-        Object.keys(res.data).forEach(reskey => {
-          res.data[reskey] = res.data[reskey].concat(savedResponse.data[reskey]);
-        });
-        res.size = res.size + savedResponse.size;
-      }
+      // if (isLiveTailOn){
+      //   res.jsonData = res.jsonData.concat(savedResponse.jsonData);
+      //   Object.keys(res.data).forEach(reskey => {
+      //     res.data[reskey] = res.data[reskey].concat(savedResponse.data[reskey]);
+      //   });
+      //   res.size = res.size + savedResponse.size;
+      // }
       setSavedResponse(res);
       setVisualizationData(res);
     })
@@ -174,7 +174,7 @@ export const getQueryResponse = (
   setSavedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
   isLiveTailOn: boolean
 ) => {
-  setIsLoading(true);
+  if (!isLiveTailOn) setIsLoading(true);
   setIsError('');
 
   let finalQuery = '';
@@ -209,7 +209,7 @@ export const renderSavedVisualization = async (
   setSavedResponse: React.Dispatch<React.SetStateAction<Plotly.Data[]>>,
   isLiveTailOn: boolean
 ) => {
-  setIsLoading(true);
+  if (!isLiveTailOn) setIsLoading(true);
   setIsError('');
 
   let visualization = {} as SavedVisualizationType;

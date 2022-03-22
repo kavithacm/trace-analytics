@@ -598,7 +598,7 @@ export const CustomPanelView = ({
         iconSide="left"
         onClick={() => setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen)}
         onChange={onToggleChange}
-        data-test-subj="eventLiveTail"
+        data-test-subj="panelsLiveTail"
       />
     );
   }, [isLiveTailPopoverOpen, liveTailToggle, onToggleChange, isLiveTailOn]);
@@ -611,7 +611,7 @@ export const CustomPanelView = ({
   ) => {
     setLiveTailName(name);
     setLiveTailPanelId(panelId);
-    setStartTime(startTime);
+    // setStartTime(startTime);
     setEndTime(endTime);
     setSleepTime(delayTime);
     setIsLiveTailOn(true);
@@ -629,7 +629,7 @@ export const CustomPanelView = ({
       5s
     </EuiContextMenuItem>,
     <EuiContextMenuItem
-      data-test-subj="eventLiveTail__delay10"
+      data-test-subj="panelsLiveTail__delay10"
       key="10s"
       onClick={async () => {
         liveTailLoop('10s', 'now-10s', 'now', 10000);
@@ -698,7 +698,7 @@ export const CustomPanelView = ({
   const stopLive = () => {
     setLiveTailName('Live');
     setIsLiveTailOn(false);
-    setToast('Live tail Off', 'success');
+    setToast('Live tail Off', 'danger');
     setIsLiveTailPopoverOpen(false);
   }
 
@@ -815,7 +815,7 @@ export const CustomPanelView = ({
                   inputDisabled={inputDisabled}
                 />
               </EuiFlexItem>
-              {!isLiveTailOn && (
+              {/* {!isLiveTailOn && ( */}
                 <EuiFlexItem grow={false}>
                   <EuiSuperDatePicker
                     dateFormat={uiSettingsService.get('dateFormat')}
@@ -826,7 +826,7 @@ export const CustomPanelView = ({
                     isDisabled={dateDisabled}
                   />
                 </EuiFlexItem>
-              )}
+              {/* )} */}
               <EuiFlexItem className="euiFlexItem--flexGrowZero live-tail">
                 <EuiPopover
                   panelPaddingSize="none"
@@ -840,6 +840,7 @@ export const CustomPanelView = ({
               {isLiveTailOn && (
                 <EuiFlexItem grow={false}>
                   <EuiButton
+                    data-test-subj="panelsLiveTail__off"
                     iconType="stop"
                     onClick={() => stopLive()}
                     color="danger"
