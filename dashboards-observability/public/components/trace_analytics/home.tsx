@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { EuiLink } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
 import { Route, RouteComponentProps } from 'react-router-dom';
 import {
@@ -20,7 +21,7 @@ import { Traces, TraceView } from './components/traces';
 import { handleIndicesExistRequest } from './requests/request_handler';
 
 export interface TraceAnalyticsCoreDeps {
-  parentBreadcrumb: ChromeBreadcrumb;
+  parentBreadcrumbs: ChromeBreadcrumb[];
   http: HttpStart;
   chrome: ChromeStart;
 }
@@ -66,8 +67,35 @@ export const Home = (props: HomeProps) => {
     handleIndicesExistRequest(props.http, setIndicesExist);
   }, []);
 
+  const dashboardBreadcrumbs = [
+    {
+      text: 'Trace analytics',
+      href: '#/trace_analytics/home',
+    },
+    {
+      text: 'Dashboards',
+      href: '#/trace_analytics/home',
+    },
+  ];
+
+  const serviceBreadcrumbs = [
+    {
+      text: 'Trace analytics',
+      href: '#/trace_analytics/home',
+    },
+    {
+      text: 'Services',
+      href: '#/trace_analytics/services',
+    },
+  ];
+
+  const nameColumnAction = (item: any) =>
+    location.assign(`#/trace_analytics/services/${encodeURIComponent(item)}`);
+
+  const traceColumnAction = () => location.assign('#/trace_analytics/traces');
+
   const commonProps: TraceAnalyticsComponentDeps = {
-    parentBreadcrumb: props.parentBreadcrumb,
+    parentBreadcrumbs: props.parentBreadcrumbs,
     http: props.http,
     chrome: props.chrome,
     query,
@@ -89,7 +117,7 @@ export const Home = (props: HomeProps) => {
         path={['/trace_analytics', '/trace_analytics/home']}
         render={(routerProps) => (
           <ObservabilitySideBar>
-            <Dashboard page="dashboard" {...commonProps} />
+            <Dashboard page="dashboard" childBreadcrumbs={dashboardBreadcrumbs} {...commonProps} />
           </ObservabilitySideBar>
         )}
       />
@@ -106,7 +134,7 @@ export const Home = (props: HomeProps) => {
         path="/trace_analytics/traces/:id+"
         render={(routerProps) => (
           <TraceView
-            parentBreadcrumb={props.parentBreadcrumb}
+            parentBreadcrumbs={props.parentBreadcrumbs}
             chrome={props.chrome}
             http={props.http}
             traceId={decodeURIComponent(routerProps.match.params.id)}
@@ -118,7 +146,13 @@ export const Home = (props: HomeProps) => {
         path="/trace_analytics/services"
         render={(routerProps) => (
           <ObservabilitySideBar>
-            <Services page="services" {...commonProps} />
+            <Services
+              page="services"
+              childBreadcrumbs={serviceBreadcrumbs}
+              nameColumnAction={nameColumnAction}
+              traceColumnAction={traceColumnAction}
+              {...commonProps}
+            />
           </ObservabilitySideBar>
         )}
       />
