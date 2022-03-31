@@ -51,7 +51,7 @@ import {
   isPPLFilterValid,
   fetchVisualizationById,
 } from './helpers/utils';
-import { UI_DATE_FORMAT } from '../../../common/constants/shared';
+import { UI_DATE_FORMAT, PPL_DATE_FORMAT, UTC_DATE_FORMAT } from '../../../common/constants/shared';
 import { VisaulizationFlyout } from './panel_modules/visualization_flyout';
 import { uiSettingsService } from '../../../common/utils';
 import { PPLReferenceFlyout } from '../common/helpers';
@@ -61,6 +61,7 @@ import {
   onItemSelect,
   parseForIndices,
 } from '../common/search/autocomplete_logic';
+import datemath from '@elastic/datemath';
 
 /*
  * "CustomPanelsView" module used to render an Operational Panel
@@ -154,6 +155,8 @@ export const CustomPanelView = ({
   const [liveTailToggle, setLiveTailToggle] = useState(false);
   const [sleepTime, setSleepTime] = useState(0);
   const [browserTabFocus, setBrowserTabFocus] = useState(true);
+  const [absoluteStartTime, setAbsoluteStartTime] = useState(PPL_DATE_FORMAT);
+  const [absoluteEndTime, setAbsoluteEndTime] = useState(PPL_DATE_FORMAT);
 
   const appPanel = page === 'app';
 
@@ -604,25 +607,25 @@ export const CustomPanelView = ({
 
   const liveTailLoop = async (
     name: string,
-    startTime: string,
-    endTime: string,
     delayTime: number
   ) => {
     setLiveTailName(name);
     setLiveTailPanelId(panelId);
-    // setStartTime(startTime);
-    setEndTime(endTime);
+    setEndTime('now');
+    setAbsoluteStartTime(datemath.parse(startTime, { roundUp: true })?.utc().format(UTC_DATE_FORMAT));
+    setAbsoluteEndTime(datemath.parse(endTime, { roundUp: true })?.utc().format(UTC_DATE_FORMAT));
     setSleepTime(delayTime);
     setIsLiveTailOn(true);
     setToast('Live tail On', 'success');
     setIsLiveTailPopoverOpen(false);
+    setDateDisabled(true);
   };
 
   const popoverItems: ReactElement[] = [
     <EuiContextMenuItem
       key="5s"
       onClick={async () => {
-        liveTailLoop('5s', 'now-5s', 'now', 5000);
+        liveTailLoop('5s', 5000);
       }}
     >
       5s
@@ -631,7 +634,7 @@ export const CustomPanelView = ({
       data-test-subj="panelsLiveTail__delay10"
       key="10s"
       onClick={async () => {
-        liveTailLoop('10s', 'now-10s', 'now', 10000);
+        liveTailLoop('10s', 10000);
       }}
     >
       10s
@@ -639,7 +642,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="30s"
       onClick={async () => {
-        liveTailLoop('30s', 'now-30s', 'now', 30000);
+        liveTailLoop('30s', 30000);
       }}
     >
       30s
@@ -647,7 +650,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="1m"
       onClick={async () => {
-        liveTailLoop('1m', 'now-1m', 'now', 60000);
+        liveTailLoop('1m', 60000);
       }}
     >
       1m
@@ -655,7 +658,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="5m"
       onClick={async () => {
-        liveTailLoop('5m', 'now-5m', 'now', 60000 * 5);
+        liveTailLoop('5m', 60000 * 5);
       }}
     >
       5m
@@ -663,7 +666,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="15m"
       onClick={async () => {
-        liveTailLoop('15m', 'now-15m', 'now', 60000 * 15);
+        liveTailLoop('15m', 60000 * 15);
       }}
     >
       15m
@@ -671,7 +674,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="30m"
       onClick={async () => {
-        liveTailLoop('30m', 'now-30m', 'now', 60000 * 30);
+        liveTailLoop('30m', 60000 * 30);
       }}
     >
       30m
@@ -679,7 +682,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="1h"
       onClick={async () => {
-        liveTailLoop('1h', 'now-1h', 'now', 60000 * 60);
+        liveTailLoop('1h', 60000 * 60);
       }}
     >
       1h
@@ -687,7 +690,7 @@ export const CustomPanelView = ({
     <EuiContextMenuItem
       key="2h"
       onClick={async () => {
-        liveTailLoop('2h', 'now-2h', 'now', 60000 * 120);
+        liveTailLoop('2h', 60000 * 120);
       }}
     >
       2h
@@ -697,6 +700,7 @@ export const CustomPanelView = ({
   const stopLive = () => {
     setLiveTailName('Live');
     setIsLiveTailOn(false);
+    setDateDisabled(false);
     setToast('Live tail Off', 'danger');
     setIsLiveTailPopoverOpen(false);
   }
@@ -814,18 +818,43 @@ export const CustomPanelView = ({
                   inputDisabled={inputDisabled}
                 />
               </EuiFlexItem>
-              {/* {!isLiveTailOn && ( */}
+              {/* {!isLiveTailOn ? ( */}
                 <EuiFlexItem grow={false}>
                   <EuiSuperDatePicker
                     dateFormat={uiSettingsService.get('dateFormat')}
-                    start={startTime}
-                    end={endTime}
+                    start={isLiveTailOn? absoluteStartTime : startTime}
+                    end={isLiveTailOn? absoluteEndTime : endTime}
                     onTimeChange={onDatePickerChange}
                     recentlyUsedRanges={recentlyUsedRanges}
                     isDisabled={dateDisabled}
                   />
                 </EuiFlexItem>
-              {/* )} */}
+              {/* ):(
+                <EuiDatePickerRange
+                  startDateControl={
+                    <EuiDatePicker
+                      selected={startTime}
+                      onChange={this.handleChangeStart}
+                      startDate={startTime}
+                      endDate={endTime}
+                      isInvalid={startTime > endTime}
+                      aria-label="Start date"
+                      showTimeSelect
+                    />
+                  }
+                  endDateControl={
+                    <EuiDatePicker
+                      selected={endTime}
+                      onChange={this.handleChangeEnd}
+                      startDate={startTime}
+                      endDate={endTime}
+                      isInvalid={startTime > endTime}
+                      aria-label="End date"
+                      showTimeSelect
+                    />
+                  }
+                />
+              )} */}
               <EuiFlexItem className="euiFlexItem--flexGrowZero live-tail">
                 <EuiPopover
                   panelPaddingSize="none"
@@ -919,6 +948,7 @@ export const CustomPanelView = ({
               isLiveTailOn={isLiveTailOn}
               liveTailName={liveTailName}
               sleepTime={sleepTime}
+              setAbsoluteEndTime={setAbsoluteEndTime}
             />
           </EuiPageContentBody>
         </EuiPageBody>

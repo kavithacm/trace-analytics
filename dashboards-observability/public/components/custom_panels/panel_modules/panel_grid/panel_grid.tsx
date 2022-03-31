@@ -59,6 +59,7 @@ type Props = {
   isLiveTailOn: boolean;
   liveTailName: string;
   sleepTime: number;
+  setAbsoluteEndTime: string;
 };
 
 export const PanelGrid = ({
@@ -81,6 +82,7 @@ export const PanelGrid = ({
   isLiveTailOn,
   liveTailName,
   sleepTime,
+  setAbsoluteEndTime,
 }: Props) => {
   const [currentLayout, setCurrentLayout] = useState<Layout[]>([]);
   const [postEditLayout, setPostEditLayout] = useState<Layout[]>([]);
@@ -115,6 +117,7 @@ export const PanelGrid = ({
           isLiveTailOn={isLiveTailOn}
           liveTailName={liveTailName}
           sleepTime={sleepTime}
+          setAbsoluteEndTime={setAbsoluteEndTime}
         />
       )
     );

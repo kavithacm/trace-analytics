@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import datemath from '@elastic/datemath';
 import {
   EuiButtonIcon,
   EuiContextMenuItem,
@@ -17,6 +18,7 @@ import {
   EuiText,
   EuiToolTip,
 } from '@elastic/eui';
+import { UTC_DATE_FORMAT } from '../../../../../common/constants/shared';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CoreStart } from '../../../../../../../src/core/public';
 import PPLService from '../../../../services/requests/ppl';
@@ -61,6 +63,7 @@ interface Props {
   isLiveTailOn: boolean;
   liveTailName: string;
   sleepTime: number;
+  setAbsoluteEndTime: string;
 }
 
 export const VisualizationContainer = ({
@@ -82,6 +85,7 @@ export const VisualizationContainer = ({
   isLiveTailOn,
   liveTailName,
   sleepTime,
+  setAbsoluteEndTime,
 }: Props) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [disablePopover, setDisablePopover] = useState(false);
@@ -196,6 +200,7 @@ export const VisualizationContainer = ({
     }
 
     const newIntervalId = setInterval(() => {
+      setAbsoluteEndTime(datemath.parse(toTime, { roundUp: true })?.utc().format(UTC_DATE_FORMAT));
       loadVisaulization();
     }, sleepTime);
     setIntervalId(newIntervalId);
