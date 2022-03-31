@@ -2,6 +2,8 @@
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-console */
 
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -38,7 +40,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
  * editActionType: Type of action done while clicking the edit button
  */
 
-type Props = {
+interface PanelGridProps {
   http: CoreStart['http'];
   chrome: CoreStart['chrome'];
   panelId: string;
@@ -48,8 +50,7 @@ type Props = {
   pplService: PPLService;
   startTime: string;
   endTime: string;
-  fromApp?: boolean;
-  switchToEditViz?: any;
+  onEditClick: (savedVisualizationId: string) => any;
   onRefresh: boolean;
   cloneVisualization: (visualzationTitle: string, savedVisualizationId: string) => void;
   pplFilterValue: string;
@@ -72,8 +73,7 @@ export const PanelGrid = ({
   pplService,
   startTime,
   endTime,
-  fromApp = false,
-  switchToEditViz,
+  onEditClick,
   onRefresh,
   cloneVisualization,
   pplFilterValue,
@@ -90,9 +90,9 @@ export const PanelGrid = ({
   const isLocked = useObservable(chrome.getIsNavDrawerLocked$());
 
   // Reset Size of Visualizations when layout is changed
-  const layoutChanged = (currentLayout: Layout[], allLayouts: Layouts) => {
+  const layoutChanged = (currLayouts: Layout[], allLayouts: Layouts) => {
     window.dispatchEvent(new Event('resize'));
-    setPostEditLayout(currentLayout);
+    setPostEditLayout(currLayouts);
   };
 
   const loadVizComponents = () => {
@@ -108,8 +108,7 @@ export const PanelGrid = ({
           fromTime={startTime}
           toTime={endTime}
           onRefresh={onRefresh}
-          fromApp={fromApp}
-          switchToEditViz={switchToEditViz}
+          onEditClick={onEditClick}
           cloneVisualization={cloneVisualization}
           pplFilterValue={pplFilterValue}
           showFlyout={showFlyout}
@@ -148,12 +147,12 @@ export const PanelGrid = ({
   };
 
   // Save Visualization Layouts when not in edit mode anymore (after users saves the panel)
-  const saveVisualizationLayouts = async (panelId: string, visualizationParams: any) => {
+  const saveVisualizationLayouts = async (panelID: string, visualizationParams: any) => {
     return http
       .put(`${CUSTOM_PANELS_API_PREFIX}/visualizations/edit`, {
         body: JSON.stringify({
-          panelId: panelId,
-          visualizationParams: visualizationParams,
+          panelId: panelID,
+          visualizationParams,
         }),
       })
       .then(async (res) => {

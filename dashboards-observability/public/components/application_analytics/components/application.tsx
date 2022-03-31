@@ -7,7 +7,6 @@
 
 import {
   EuiHorizontalRule,
-  EuiLink,
   EuiPage,
   EuiPageBody,
   EuiPageHeader,
@@ -25,18 +24,19 @@ import PPLService from 'public/services/requests/ppl';
 import SavedObjects from 'public/services/saved_objects/event_analytics/saved_objects';
 import TimestampUtils from 'public/services/timestamp/timestamp';
 import React, { ReactChild, useEffect, useState } from 'react';
-import { truncate, uniqueId } from 'lodash';
+import { uniqueId } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { last } from 'lodash';
+import { TracesContent } from '../../../components/trace_analytics/components/traces/traces_content';
 import { DashboardContent } from '../../../components/trace_analytics/components/dashboard/dashboard_content';
+import { ServicesContent } from '../../trace_analytics/components/services/services_content';
 import {
   filtersToDsl,
   PanelTitle,
 } from '../../../../public/components/trace_analytics/components/common/helper_functions';
 import { SpanDetailTable } from '../../../../public/components/trace_analytics/components/traces/span_detail_table';
 import { Explorer } from '../../explorer/explorer';
-import { Traces } from '../../trace_analytics/components/traces';
 import { Configuration } from './configuration';
 import {
   TAB_CONFIG_ID_TXT_PFX,
@@ -63,7 +63,6 @@ import { ServiceDetailFlyout } from './flyout_components/service_detail_flyout';
 import { SpanDetailFlyout } from '../../../../public/components/trace_analytics/components/traces/span_detail_flyout';
 import { TraceDetailFlyout } from './flyout_components/trace_detail_flyout';
 import { fetchAppById, initializeTabData } from '../helpers/utils';
-import { ServicesContent } from '../../trace_analytics/components/services/services_content';
 
 const TAB_OVERVIEW_ID = uniqueId(TAB_OVERVIEW_ID_TXT_PFX);
 const TAB_SERVICE_ID = uniqueId(TAB_SERVICE_ID_TXT_PFX);
@@ -113,15 +112,11 @@ export function Application(props: AppDetailProps) {
     appId,
     chrome,
     parentBreadcrumbs,
-    startTime,
-    endTime,
     query,
     filters,
     appConfigs,
     updateApp,
     setAppConfigs,
-    setStartTimeWithStorage,
-    setEndTimeWithStorage,
     setToasts,
     setFilters,
   } = props;
@@ -144,14 +139,22 @@ export function Application(props: AppDetailProps) {
   const [editVizId, setEditVizId] = useState<string>('');
   const [visWithAvailability, setVisWithAvailability] = useState<EuiSelectOption[]>([]);
   const handleContentTabClick = (selectedTab: IQueryTab) => setSelectedTab(selectedTab.id);
+  const [appStartTime, setAppStartTime] = useState<string>(
+    sessionStorage.getItem(`${application.name}StartTime`) || 'now-24h'
+  );
+  const [appEndTime, setAppEndTime] = useState<string>(
+    sessionStorage.getItem(`${application.name}EndTime`) || 'now'
+  );
+
   const history = useHistory();
 
   const setStartTimeForApp = (newStartTime: string) => {
-    setStartTimeWithStorage(newStartTime, `${application.name}StartTime`);
+    setAppStartTime(newStartTime);
+    sessionStorage.setItem(`${application.name}StartTime`, newStartTime);
   };
-
   const setEndTimeForApp = (newEndTime: string) => {
-    setEndTimeWithStorage(newEndTime, `${application.name}EndTime`);
+    setAppEndTime(newEndTime);
+    sessionStorage.setItem(`${application.name}EndTime`, newEndTime);
   };
 
   const addSpanFilter = (field: string, value: any) => {
@@ -228,9 +231,9 @@ export function Application(props: AppDetailProps) {
   }, [appId, application.name]);
 
   useEffect(() => {
-    const DSL = filtersToDsl(filters, query, startTime, endTime, 'app', appConfigs);
+    const DSL = filtersToDsl(filters, query, appStartTime, appEndTime, 'app', appConfigs);
     setSpanDSL(DSL);
-  }, [filters, appConfigs, query, startTime, endTime]);
+  }, [filters, appConfigs, query, appStartTime, appEndTime]);
 
   useEffect(() => {
     if (selectedTabId !== TAB_LOG_ID) {
@@ -286,6 +289,8 @@ export function Application(props: AppDetailProps) {
         <DashboardContent
           {...props}
           page="app"
+          startTime={appStartTime}
+          endTime={appEndTime}
           setStartTime={setStartTimeForApp}
           setEndTime={setEndTimeForApp}
           childBreadcrumbs={childBreadcrumbs}
@@ -307,6 +312,8 @@ export function Application(props: AppDetailProps) {
           nameColumnAction={nameColumnAction}
           traceColumnAction={traceColumnAction}
           childBreadcrumbs={childBreadcrumbs}
+          startTime={appStartTime}
+          endTime={appEndTime}
           setStartTime={setStartTimeForApp}
           setEndTime={setEndTimeForApp}
         />
@@ -318,18 +325,21 @@ export function Application(props: AppDetailProps) {
     setSelectedTab(TAB_TRACE_ID);
   };
 
+  const traceIdColumnAction = (item: any) => openTraceFlyout(item);
+
   const getTrace = () => {
     return (
       <>
-        <Traces
+        <EuiSpacer size="m" />
+        <TracesContent
           {...props}
           page="app"
-          appId={appId}
-          appName={application.name}
-          openTraceFlyout={openTraceFlyout}
+          childBreadcrumbs={childBreadcrumbs}
+          traceIdColumnAction={traceIdColumnAction}
+          startTime={appStartTime}
+          endTime={appEndTime}
           setStartTime={setStartTimeForApp}
           setEndTime={setEndTimeForApp}
-          switchToEditViz={switchToEditViz}
         />
         <EuiSpacer size="m" />
         <EuiPanel>
@@ -364,14 +374,18 @@ export function Application(props: AppDetailProps) {
         searchBarConfigs={searchBarConfigs}
         appId={appId}
         addVisualizationToPanel={addVisualizationToPanel}
-        startTime={startTime}
-        endTime={endTime}
+        startTime={appStartTime}
+        endTime={appEndTime}
         setStartTime={setStartTimeForApp}
         setEndTime={setEndTimeForApp}
         appBaseQuery={application.baseQuery}
         curSelectedTabId={selectedTabId}
       />
     );
+  };
+
+  const onEditClick = (savedVisualizationId: string) => {
+    switchToEditViz(savedVisualizationId);
   };
 
   const getPanel = () => {
@@ -383,20 +397,20 @@ export function Application(props: AppDetailProps) {
         dslService={dslService}
         chrome={chrome}
         parentBreadcrumbs={parentBreadcrumbs}
+        childBreadcrumbs={childBreadcrumbs}
         // App analytics will not be renaming/cloning/deleting panels
         renameCustomPanel={async () => undefined}
         cloneCustomPanel={async () => Promise.reject()}
         deleteCustomPanel={async () => Promise.reject()}
         setToast={setToasts}
         page="app"
-        appName={application.name}
         appId={appId}
-        startTime={startTime}
-        endTime={endTime}
+        startTime={appStartTime}
+        endTime={appEndTime}
         setStartTime={setStartTimeForApp}
         setEndTime={setEndTimeForApp}
-        switchToEvent={switchToEvent}
-        switchToEditViz={switchToEditViz}
+        onAddClick={switchToEvent}
+        onEditClick={onEditClick}
       />
     );
   };
@@ -510,6 +524,8 @@ export function Application(props: AppDetailProps) {
           <ServiceDetailFlyout
             {...props}
             serviceName={serviceFlyoutName}
+            startTime={appStartTime}
+            endTime={appEndTime}
             closeServiceFlyout={closeServiceFlyout}
             openSpanFlyout={openSpanFlyout}
             setSelectedTab={setSelectedTab}

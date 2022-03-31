@@ -3,22 +3,7 @@
 exports[`Empty panel view component renders empty panel view with disabled popover 1`] = `
 <EmptyPanelView
   addVizDisabled={true}
-  getVizContextPanels={
-    [MockFunction] {
-      "calls": Array [
-        Array [
-          [Function],
-        ],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": undefined,
-        },
-      ],
-    }
-  }
-  page="operationalPanel"
+  showFlyout={[MockFunction]}
 >
   <div>
     <EuiSpacer
@@ -41,8 +26,7 @@ exports[`Empty panel view component renders empty panel view with disabled popov
             className="euiTextAlign euiTextAlign--center"
           >
             <h2>
-              Start by adding 
-              your first visualization
+              Start by adding your first visualization
             </h2>
             <EuiSpacer
               size="m"
@@ -65,8 +49,7 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                   <div
                     className="euiTextColor euiTextColor--subdued"
                   >
-                    Use PPL Queries to fetch & filter observability data and create
-                     visualizations
+                    Use PPL Queries to fetch & filter observability data and create visualizations
                   </div>
                 </EuiTextColor>
               </div>
@@ -94,38 +77,33 @@ exports[`Empty panel view component renders empty panel view with disabled popov
           <div
             className="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <EuiPopover
-              anchorPosition="downLeft"
-              button={
-                <EuiButton
-                  disabled={true}
-                  iconSide="right"
-                  iconType="arrowDown"
-                  onClick={[Function]}
-                >
-                  Add Visualization
-                </EuiButton>
-              }
-              closePopover={[Function]}
-              display="inlineBlock"
-              hasArrow={true}
-              id="addVisualizationContextMenu"
-              isOpen={false}
-              ownFocus={false}
-              panelPaddingSize="none"
+            <AddVisualizationPopover
+              addVizDisabled={true}
+              showFlyout={[MockFunction]}
             >
-              <EuiOutsideClickDetector
-                isDisabled={true}
-                onOutsideClick={[Function]}
+              <EuiPopover
+                anchorPosition="downLeft"
+                button={
+                  <EuiButton
+                    disabled={true}
+                    iconSide="right"
+                    iconType="arrowDown"
+                    onClick={[Function]}
+                  >
+                    Add visualization
+                  </EuiButton>
+                }
+                closePopover={[Function]}
+                display="inlineBlock"
+                hasArrow={true}
+                id="addVisualizationContextMenu"
+                isOpen={false}
+                ownFocus={true}
+                panelPaddingSize="none"
               >
                 <div
                   className="euiPopover euiPopover--anchorDownLeft"
                   id="addVisualizationContextMenu"
-                  onKeyDown={[Function]}
-                  onMouseDown={[Function]}
-                  onMouseUp={[Function]}
-                  onTouchEnd={[Function]}
-                  onTouchStart={[Function]}
                 >
                   <div
                     className="euiPopover__anchor"
@@ -137,6 +115,7 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                       onClick={[Function]}
                     >
                       <EuiButtonDisplay
+                        baseClassName="euiButton"
                         disabled={true}
                         element="button"
                         iconSide="right"
@@ -149,6 +128,11 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                           className="euiButton euiButton--primary euiButton-isDisabled"
                           disabled={true}
                           onClick={[Function]}
+                          style={
+                            Object {
+                              "minWidth": undefined,
+                            }
+                          }
                           type="button"
                         >
                           <EuiButtonContent
@@ -166,19 +150,20 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                             >
                               <EuiIcon
                                 className="euiButtonContent__icon"
+                                color="inherit"
                                 size="m"
                                 type="arrowDown"
                               >
                                 <EuiIconEmpty
                                   aria-hidden={true}
-                                  className="euiIcon euiIcon--medium euiIcon-isLoading euiButtonContent__icon"
+                                  className="euiIcon euiIcon--medium euiIcon--inherit euiIcon-isLoading euiButtonContent__icon"
                                   focusable="false"
                                   role="img"
                                   style={null}
                                 >
                                   <svg
                                     aria-hidden={true}
-                                    className="euiIcon euiIcon--medium euiIcon-isLoading euiButtonContent__icon"
+                                    className="euiIcon euiIcon--medium euiIcon--inherit euiIcon-isLoading euiButtonContent__icon"
                                     focusable="false"
                                     height={16}
                                     role="img"
@@ -192,7 +177,7 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                               <span
                                 className="euiButton__text"
                               >
-                                Add Visualization
+                                Add visualization
                               </span>
                             </span>
                           </EuiButtonContent>
@@ -201,8 +186,8 @@ exports[`Empty panel view component renders empty panel view with disabled popov
                     </EuiButton>
                   </div>
                 </div>
-              </EuiOutsideClickDetector>
-            </EuiPopover>
+              </EuiPopover>
+            </AddVisualizationPopover>
           </div>
         </EuiFlexItem>
       </div>
@@ -221,22 +206,7 @@ exports[`Empty panel view component renders empty panel view with disabled popov
 exports[`Empty panel view component renders empty panel view with enabled popover 1`] = `
 <EmptyPanelView
   addVizDisabled={false}
-  getVizContextPanels={
-    [MockFunction] {
-      "calls": Array [
-        Array [
-          [Function],
-        ],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": undefined,
-        },
-      ],
-    }
-  }
-  page="operationalPanel"
+  showFlyout={[MockFunction]}
 >
   <div>
     <EuiSpacer
@@ -259,8 +229,7 @@ exports[`Empty panel view component renders empty panel view with enabled popove
             className="euiTextAlign euiTextAlign--center"
           >
             <h2>
-              Start by adding 
-              your first visualization
+              Start by adding your first visualization
             </h2>
             <EuiSpacer
               size="m"
@@ -283,8 +252,7 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                   <div
                     className="euiTextColor euiTextColor--subdued"
                   >
-                    Use PPL Queries to fetch & filter observability data and create
-                     visualizations
+                    Use PPL Queries to fetch & filter observability data and create visualizations
                   </div>
                 </EuiTextColor>
               </div>
@@ -312,38 +280,33 @@ exports[`Empty panel view component renders empty panel view with enabled popove
           <div
             className="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <EuiPopover
-              anchorPosition="downLeft"
-              button={
-                <EuiButton
-                  disabled={false}
-                  iconSide="right"
-                  iconType="arrowDown"
-                  onClick={[Function]}
-                >
-                  Add Visualization
-                </EuiButton>
-              }
-              closePopover={[Function]}
-              display="inlineBlock"
-              hasArrow={true}
-              id="addVisualizationContextMenu"
-              isOpen={false}
-              ownFocus={false}
-              panelPaddingSize="none"
+            <AddVisualizationPopover
+              addVizDisabled={false}
+              showFlyout={[MockFunction]}
             >
-              <EuiOutsideClickDetector
-                isDisabled={true}
-                onOutsideClick={[Function]}
+              <EuiPopover
+                anchorPosition="downLeft"
+                button={
+                  <EuiButton
+                    disabled={false}
+                    iconSide="right"
+                    iconType="arrowDown"
+                    onClick={[Function]}
+                  >
+                    Add visualization
+                  </EuiButton>
+                }
+                closePopover={[Function]}
+                display="inlineBlock"
+                hasArrow={true}
+                id="addVisualizationContextMenu"
+                isOpen={false}
+                ownFocus={true}
+                panelPaddingSize="none"
               >
                 <div
                   className="euiPopover euiPopover--anchorDownLeft"
                   id="addVisualizationContextMenu"
-                  onKeyDown={[Function]}
-                  onMouseDown={[Function]}
-                  onMouseUp={[Function]}
-                  onTouchEnd={[Function]}
-                  onTouchStart={[Function]}
                 >
                   <div
                     className="euiPopover__anchor"
@@ -355,6 +318,7 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                       onClick={[Function]}
                     >
                       <EuiButtonDisplay
+                        baseClassName="euiButton"
                         disabled={false}
                         element="button"
                         iconSide="right"
@@ -367,6 +331,11 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                           className="euiButton euiButton--primary"
                           disabled={false}
                           onClick={[Function]}
+                          style={
+                            Object {
+                              "minWidth": undefined,
+                            }
+                          }
                           type="button"
                         >
                           <EuiButtonContent
@@ -384,19 +353,20 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                             >
                               <EuiIcon
                                 className="euiButtonContent__icon"
+                                color="inherit"
                                 size="m"
                                 type="arrowDown"
                               >
                                 <EuiIconArrowDown
                                   aria-hidden={true}
-                                  className="euiIcon euiIcon--medium euiButtonContent__icon"
+                                  className="euiIcon euiIcon--medium euiIcon--inherit euiButtonContent__icon"
                                   focusable="false"
                                   role="img"
                                   style={null}
                                 >
                                   <svg
                                     aria-hidden={true}
-                                    className="euiIcon euiIcon--medium euiButtonContent__icon"
+                                    className="euiIcon euiIcon--medium euiIcon--inherit euiButtonContent__icon"
                                     focusable="false"
                                     height={16}
                                     role="img"
@@ -415,7 +385,7 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                               <span
                                 className="euiButton__text"
                               >
-                                Add Visualization
+                                Add visualization
                               </span>
                             </span>
                           </EuiButtonContent>
@@ -424,8 +394,8 @@ exports[`Empty panel view component renders empty panel view with enabled popove
                     </EuiButton>
                   </div>
                 </div>
-              </EuiOutsideClickDetector>
-            </EuiPopover>
+              </EuiPopover>
+            </AddVisualizationPopover>
           </div>
         </EuiFlexItem>
       </div>
