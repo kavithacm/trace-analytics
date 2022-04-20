@@ -21,10 +21,11 @@ import _ from 'lodash';
 import { DatePicker } from './date_picker';
 import '@algolia/autocomplete-theme-classic';
 import { Autocomplete } from './autocomplete';
-import { SavePanel } from '../../explorer/save_panel';
+import { SavePanel } from '../../event_analytics/explorer/save_panel';
 import { PPLReferenceFlyout } from '../helpers';
 import { uiSettingsService } from '../../../../common/utils';
 import { APP_ANALYTICS_TAB_ID_REGEX } from '../../../../common/constants/explorer';
+import { LiveTailButton, StopLiveButton } from '../live_tail/live_tail_button';
 export interface IQueryBarProps {
   query: string;
   tempQuery: string;
@@ -77,6 +78,9 @@ export const Search = (props: any) => {
     onItemSelect,
     tabId = '',
     baseQuery = '',
+    stopLive,
+    setIsLiveTailPopoverOpen,
+    liveTailName,
   } = props;
 
   const appLogEvents = tabId.match(APP_ANALYTICS_TAB_ID_REGEX);
@@ -110,6 +114,16 @@ export const Search = (props: any) => {
     >
       Save
     </EuiButton>
+  );
+
+  const liveButton = (
+    <LiveTailButton
+      isLiveTailOn={isLiveTailOn}
+      setIsLiveTailPopoverOpen={setIsLiveTailPopoverOpen} 
+      liveTailName={liveTailName} 
+      isLiveTailPopoverOpen={isLiveTailPopoverOpen}
+      dataTestSubj="eventLiveTail"         
+    />
   );
 
   return (
@@ -164,16 +178,24 @@ export const Search = (props: any) => {
             />
           )}
         </EuiFlexItem>
-        {!showSavePanelOptionsList && (
+        {showSaveButton && !showSavePanelOptionsList && (
           <EuiFlexItem className="euiFlexItem--flexGrowZero live-tail">
             <EuiPopover
               panelPaddingSize="none"
-              button={liveTailButton}
+              button={liveButton}
               isOpen={isLiveTailPopoverOpen}
               closePopover={closeLiveTailPopover}
             >
               <EuiContextMenuPanel items={popoverItems} />
             </EuiPopover>
+          </EuiFlexItem>
+        )}
+        {isLiveTailOn && (
+          <EuiFlexItem grow={false}>
+            <StopLiveButton
+              StopLive={stopLive}
+              dataTestSubj="eventLiveTail__off"
+            />
           </EuiFlexItem>
         )}
         {showSaveButton && searchBarConfigs[selectedSubTabId]?.showSaveButton && (

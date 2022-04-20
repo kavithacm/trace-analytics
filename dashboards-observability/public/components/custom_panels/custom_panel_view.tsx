@@ -57,7 +57,7 @@ import { uiSettingsService } from '../../../common/utils';
 import { PPLReferenceFlyout } from '../common/helpers';
 import { Autocomplete } from '../common/search/autocomplete';
 import {
-  getSuggestionsAfterSource,
+  parseGetSuggestions,
   onItemSelect,
   parseForIndices,
 } from '../common/search/autocomplete_logic';
@@ -735,7 +735,7 @@ export const CustomPanelView = (props: CustomPanelViewProps) => {
                   handleQueryChange={handleQueryChange}
                   handleQuerySearch={() => onRefreshFilters(startTime, endTime)}
                   dslService={dslService}
-                  getSuggestions={getSuggestionsAfterSource}
+                  getSuggestions={parseGetSuggestions}
                   onItemSelect={onItemSelect}
                   isDisabled={inputDisabled}
                   tabId={'panels-filter'}

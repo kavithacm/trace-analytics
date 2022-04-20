@@ -18,21 +18,21 @@ import { VisualizationType } from '../../../../common/types/custom_panels';
 import { NEW_SELECTED_QUERY_TAB, TAB_CREATED_TYPE } from '../../../../common/constants/explorer';
 import { APP_ANALYTICS_API_PREFIX } from '../../../../common/constants/application_analytics';
 import { HttpSetup } from '../../../../../../src/core/public';
-import { init as initFields, remove as removefields } from '../../explorer/slices/field_slice';
+import { init as initFields, remove as removefields } from '../../event_analytics/redux/slices/field_slice';
 import {
   init as initVisualizationConfig,
   reset as resetVisualizationConfig,
-} from '../../explorer/slices/viualization_config_slice';
+} from '../../event_analytics/redux/slices/viualization_config_slice';
 import {
   init as initQuery,
   remove as removeQuery,
   changeQuery,
-} from '../../explorer/slices/query_slice';
+} from '../../event_analytics/redux/slices/query_slice';
 import {
   init as initQueryResult,
   remove as removeQueryResult,
-} from '../../explorer/slices/query_result_slice';
-import { addTab, removeTab } from '../../explorer/slices/query_tab_slice';
+} from '../../event_analytics/redux/slices/query_result_slice';
+import { addTab, removeTab } from '../../event_analytics/redux/slices/query_tab_slice';
 
 // Name validation
 export const isNameValid = (name: string, existingNames: string[]) => {
@@ -197,6 +197,7 @@ export const calculateAvailability = async (
   const panelId = application.panelId;
   if (!panelId) return availability;
   // Fetches saved visualizations associated to application's panel
+  // Order visualizations by most recently created
   const savedVisualizationsIds = (await fetchPanelsVizIdList(http, panelId)).reverse();
   if (!savedVisualizationsIds) return availability;
   const visWithAvailability = [];
@@ -241,39 +242,71 @@ export const calculateAvailability = async (
           hasAvailability = true;
           // If there is an availiabilityVisId selected we only want to compute availability based on that
           if (availabilityVisId ? availabilityVisId === visualizationId : true) {
-            if (!availabilityFound && threshold.expression) {
-              const expression = threshold.expression;
-              switch (expression) {
-                case '>':
-                  if (currValue > parseFloat(threshold.value)) {
-                    availability = {
-                      name: threshold.name,
-                      color: threshold.color,
-                      mainVisId: visualizationId,
-                    };
-                    availabilityFound = true;
-                  }
-                  break;
-                case '<':
-                  if (currValue < parseFloat(threshold.value)) {
-                    availability = {
-                      name: threshold.name,
-                      color: threshold.color,
-                      mainVisId: visualizationId,
-                    };
-                    availabilityFound = true;
-                  }
-                  break;
-                case '=':
-                  if (currValue === parseFloat(threshold.value)) {
-                    availability = {
-                      name: threshold.name,
-                      color: threshold.color,
-                      mainVisId: visualizationId,
-                    };
-                    availabilityFound = true;
-                  }
-                  break;
+            if (threshold.value !== null) {
+              if (!availabilityFound && threshold.expression) {
+                const expression = threshold.expression;
+                switch (expression) {
+                  case '≥':
+                    if (currValue >= parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                  case '≤':
+                    if (currValue <= parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                  case '>':
+                    if (currValue > parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                  case '<':
+                    if (currValue < parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                  case '=':
+                    if (currValue === parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                  case '≠':
+                    if (currValue !== parseFloat(threshold.value)) {
+                      availability = {
+                        name: threshold.name,
+                        color: threshold.color,
+                        mainVisId: visualizationId,
+                      };
+                      availabilityFound = true;
+                    }
+                    break;
+                }
               }
             }
           }

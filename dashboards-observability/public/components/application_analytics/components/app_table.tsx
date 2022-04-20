@@ -15,6 +15,7 @@ import {
   EuiHorizontalRule,
   EuiInMemoryTable,
   EuiLink,
+  EuiLoadingSpinner,
   EuiOverlayMask,
   EuiPage,
   EuiPageBody,
@@ -194,7 +195,10 @@ export function AppTable(props: AppTableProps) {
       truncateText: true,
       render: (value) => (
         <EuiToolTip content={value.join(', ')}>
-          <EuiText id="compositionColumn">{value.join(', ')}</EuiText>
+          <EuiText 
+            id="compositionColumn"
+            data-test-subj="appAnalytics__compositionColumn"
+          >{value.join(', ')}</EuiText>
         </EuiToolTip>
       ),
     },
@@ -203,7 +207,9 @@ export function AppTable(props: AppTableProps) {
       name: 'Current Availability',
       sortable: true,
       render: (value, record) => {
-        if (value.name) {
+        if (value.name === 'loading') {
+          return <EuiLoadingSpinner />;
+        } else if (value.name) {
           return <EuiBadge color={value.color || 'default'}>{value.name}</EuiBadge>;
         } else {
           return <EuiText>Undefined</EuiText>;

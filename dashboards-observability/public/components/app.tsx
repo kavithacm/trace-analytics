@@ -13,7 +13,7 @@ import store from '../framework/redux/store';
 import { AppPluginStartDependencies } from '../types';
 import { Home as ApplicationAnalyticsHome } from './application_analytics/home';
 import { Home as CustomPanelsHome } from './custom_panels/home';
-import { EventAnalytics } from './explorer/event_analytics';
+import { EventAnalytics } from './event_analytics';
 import { Main as NotebooksHome } from './notebooks/components/main';
 import { Home as TraceAnalyticsHome } from './trace_analytics/home';
 
@@ -24,6 +24,11 @@ interface ObservabilityAppDeps {
   dslService: any;
   savedObjects: any;
   timestampUtils: any;
+}
+
+// for cypress to test redux store
+if (window.Cypress) {
+  window.store = store;
 }
 
 export const App = ({

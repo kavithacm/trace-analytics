@@ -9,9 +9,18 @@ import org.opensearch.gradle.testclusters.StandaloneRestIntegTestTask
 
 buildscript {
     ext {
-        opensearch_version = System.getProperty("opensearch.version", "2.0.0-alpha1-SNAPSHOT")
-        // 1.0.0 -> 1.0.0.0, and 1.0.0-SNAPSHOT -> 1.0.0.0-SNAPSHOT
-        opensearch_build = opensearch_version.replaceAll(/([\d.]*\.\d+(?!\.\d))/, '$1.0')
+        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+        opensearch_version = System.getProperty("opensearch.version", "2.0.0-rc1-SNAPSHOT")
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "rc1")
+        // 2.0.0-rc1-SNAPSHOT -> 2.0.0.0-rc1-SNAPSHOT
+        version_tokens = opensearch_version.tokenize('-')
+        opensearch_build = version_tokens[0] + '.0'
+        if (buildVersionQualifier) {
+            opensearch_build += "-${buildVersionQualifier}"
+        }
+        if (isSnapshot) {
+            opensearch_build += "-SNAPSHOT"
+        }
         common_utils_version = System.getProperty("common_utils.version", opensearch_build)
         kotlin_version = System.getProperty("kotlin.version", "1.6.0")
     }
@@ -95,8 +104,6 @@ ext {
     projectSubstitutions = [:]
     licenseFile = rootProject.file('LICENSE.txt')
     noticeFile = rootProject.file('NOTICE.txt')
-    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-    buildVersionQualifier = System.getProperty("build.version_qualifier")
 }
 
 plugins.withId('java') {
@@ -110,14 +117,7 @@ plugins.withId('org.jetbrains.kotlin.jvm') {
 allprojects {
     group = "org.opensearch"
 
-    version = opensearch_version.tokenize('-')[0] + '.0'
-    if (buildVersionQualifier) {
-        version += "-${buildVersionQualifier}"
-    }
-    if (isSnapshot) {
-        version += "-SNAPSHOT"
-    }
-
+    version = "${opensearch_build}"
     plugins.withId('java') {
         sourceCompatibility = targetCompatibility = "11"
     }
@@ -151,7 +151,7 @@ validateNebulaPom.enabled = false
 dependencyLicenses.enabled = false
 thirdPartyAudit.enabled = false
 // Allow @Test to be used in test classes not inherited from LuceneTestCase.
-// see https://github.com/elastic/elasticsearch/blob/master/buildSrc/src/main/resources/forbidden/es-test-signatures.txt
+// see https://github.com/elastic/elasticsearch/blob/26c3dd6857d047054b2108f85bc2b040a9c81fe4/build-tools-internal/src/main/resources/forbidden/es-test-signatures.txt
 forbiddenApis.ignoreFailures = true
 // Allow test cases to be named Tests without having to be inherited from LuceneTestCase.
 // see https://github.com/elastic/elasticsearch/blob/323f312bbc829a63056a79ebe45adced5099f6e6/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/TestingConventionsTasks.java
@@ -261,6 +261,7 @@ testClusters.integTest {
 String bwcVersion = "1.2.0-SNAPSHOT"
 String baseName = "obsBwcCluster"
 String bwcFilePath = "src/test/kotlin/org/opensearch/observability/resources/bwc/"
+String remoteFileURL = "https://github.com/opensearch-project/observability/releases/download/1.2.0.0/opensearch-observability-1.2.0.0.zip"
 
 2.times {i ->
     testClusters {
@@ -274,6 +275,14 @@ String bwcFilePath = "src/test/kotlin/org/opensearch/observability/resources/bwc
                     return new RegularFile() {
                         @Override
                         File getAsFile() {
+                            File dir = new File(bwcFilePath + bwcVersion)
+                            if (!dir.exists()) {
+                                dir.mkdirs()
+                            }
+                            File file = new File(dir, "opensearch-observability-1.2.0.0-SNAPSHOT.zip")
+                            if (!file.exists()) {
+                                new URL(remoteFileURL).withInputStream{ ins -> file.withOutputStream{ it << ins }}
+                            }
                             return fileTree(bwcFilePath + bwcVersion).getSingleFile()
                         }
                     }
