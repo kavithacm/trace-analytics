@@ -8,7 +8,6 @@
 import {
   EuiBreadcrumb,
   EuiButton,
-  EuiButtonToggle,
   EuiContextMenu,
   EuiContextMenuItem,
   EuiContextMenuPanel,
@@ -51,7 +50,7 @@ import {
   isPPLFilterValid,
   fetchVisualizationById,
 } from './helpers/utils';
-import { UI_DATE_FORMAT, PPL_DATE_FORMAT, UTC_DATE_FORMAT } from '../../../common/constants/shared';
+import { UI_DATE_FORMAT, PPL_DATE_FORMAT, UTC_DATE_FORMAT, LIVE_OPTIONS } from '../../../common/constants/shared';
 import { VisaulizationFlyout } from './panel_modules/visualization_flyout';
 import { uiSettingsService } from '../../../common/utils';
 import { PPLReferenceFlyout } from '../common/helpers';
@@ -63,6 +62,7 @@ import {
 } from '../common/search/autocomplete_logic';
 import datemath from '@elastic/datemath';
 import { AddVisualizationPopover } from './helpers/add_visualization_popover';
+import { LiveTailButton, StopLiveButton } from '../common/live_tail/live_tail_button';
 
 /*
  * "CustomPanelsView" module used to render an Operational Panel
@@ -550,25 +550,15 @@ export const CustomPanelView = (props: CustomPanelViewProps) => {
     });
   });
 
-  const onToggleChange = (e: {
-    target: { checked: boolean | ((prevState: boolean) => boolean) };
-  }) => {
-    setLiveTailToggle(e.target.checked);
-    setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen);
-  };
-
-  const liveTailButton = useMemo(() => {
-    return (
-      <EuiButtonToggle
-        label={liveTailName}
-        iconType={isLiveTailOn ? "refresh" : "play"}
-        iconSide="left"
-        onClick={() => setIsLiveTailPopoverOpen(!isLiveTailPopoverOpen)}
-        onChange={onToggleChange}
-        data-test-subj="panelsLiveTail"
-      />
-    );
-  }, [isLiveTailPopoverOpen, liveTailToggle, onToggleChange, isLiveTailOn]);
+  const liveTailButton = (
+    <LiveTailButton
+      isLiveTailOn={isLiveTailOn}
+      setIsLiveTailPopoverOpen={setIsLiveTailPopoverOpen} 
+      liveTailName={liveTailName} 
+      isLiveTailPopoverOpen={isLiveTailPopoverOpen}
+      dataTestSubj="panelsLiveTail"         
+    />
+  );
 
   const liveTailLoop = async (
     name: string,
@@ -586,81 +576,19 @@ export const CustomPanelView = (props: CustomPanelViewProps) => {
     setDateDisabled(true);
   };
 
-  const popoverItems: ReactElement[] = [
+  const popoverItems: ReactElement[] = LIVE_OPTIONS.map((e) => {
+    return (
     <EuiContextMenuItem
-      key="5s"
+      key={e.label} 
       onClick={async () => {
-        liveTailLoop('5s', 5000);
+        liveTailLoop(e.label, e.delayTime);
       }}
+      data-test-subj={'panelsLiveTail__delay'+e.label}
     >
-      5s
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      data-test-subj="panelsLiveTail__delay10"
-      key="10s"
-      onClick={async () => {
-        liveTailLoop('10s', 10000);
-      }}
-    >
-      10s
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="30s"
-      onClick={async () => {
-        liveTailLoop('30s', 30000);
-      }}
-    >
-      30s
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="1m"
-      onClick={async () => {
-        liveTailLoop('1m', 60000);
-      }}
-    >
-      1m
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="5m"
-      onClick={async () => {
-        liveTailLoop('5m', 60000 * 5);
-      }}
-    >
-      5m
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="15m"
-      onClick={async () => {
-        liveTailLoop('15m', 60000 * 15);
-      }}
-    >
-      15m
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="30m"
-      onClick={async () => {
-        liveTailLoop('30m', 60000 * 30);
-      }}
-    >
-      30m
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="1h"
-      onClick={async () => {
-        liveTailLoop('1h', 60000 * 60);
-      }}
-    >
-      1h
-    </EuiContextMenuItem>,
-    <EuiContextMenuItem
-      key="2h"
-      onClick={async () => {
-        liveTailLoop('2h', 60000 * 120);
-      }}
-    >
-      2h
-    </EuiContextMenuItem>,
-  ];
+      {e.label}
+    </EuiContextMenuItem>
+    )
+  });
 
   const stopLive = () => {
     setLiveTailName('Live');
@@ -777,14 +705,10 @@ export const CustomPanelView = (props: CustomPanelViewProps) => {
               </EuiFlexItem>
               {isLiveTailOn && (
                 <EuiFlexItem grow={false}>
-                  <EuiButton
-                    data-test-subj="panelsLiveTail__off"
-                    iconType="stop"
-                    onClick={() => stopLive()}
-                    color="danger"
-                  >
-                    Stop
-                  </EuiButton>
+                  <StopLiveButton
+                    StopLive={stopLive}
+                    dataTestSubj="panelsLiveTail__off"
+                  />
                 </EuiFlexItem>
               )}
               {appPanel && (
