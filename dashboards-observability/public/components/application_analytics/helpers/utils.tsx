@@ -5,7 +5,7 @@
 /* eslint-disable no-console */
 
 import { EuiDescriptionList, EuiSelectOption, EuiSpacer, EuiText } from '@elastic/eui';
-import { ApplicationType, AvailabilityType } from 'common/types/application_analytics';
+import { ApplicationListType, ApplicationType } from 'common/types/app_analytics';
 import { FilterType } from 'public/components/trace_analytics/components/common/filters/filters';
 import React, { Dispatch, ReactChild } from 'react';
 import { batch } from 'react-redux';
@@ -36,6 +36,7 @@ import {
   remove as removeQueryResult,
 } from '../../event_analytics/redux/slices/query_result_slice';
 import { addTab, removeTab } from '../../event_analytics/redux/slices/query_tab_slice';
+import { AvailabilityType } from './types';
 
 // Name validation
 export const isNameValid = (name: string, existingNames: string[]) => {
@@ -99,18 +100,18 @@ export const fetchAppById = async (
 ) => {
   return http
     .get(`${APP_ANALYTICS_API_PREFIX}/${applicationId}`)
-    .then(async (res: ApplicationType) => {
-      res.availability.availabilityVisId = (
+    .then(async (res) => {
+      res.application.availabilityVisId = (
         await calculateAvailability(
           http,
           pplService,
-          res,
-          res.availability.availabilityVisId,
+          res.application,
+          res.application.availabilityVisId,
           setVisWithAvailability
         )
-      ).availabilityVisId;
-      setApplication(res);
-      const serviceFilters = res.servicesEntities.map((ser: string) => {
+      ).mainVisId;
+      setApplication(res.application);
+      const serviceFilters = res.application.servicesEntities.map((ser: string) => {
         return {
           field: 'serviceName',
           operator: 'is',
@@ -119,7 +120,7 @@ export const fetchAppById = async (
           disabled: false,
         };
       });
-      const traceFilters = res.traceGroups.map((tra: string) => {
+      const traceFilters = res.application.traceGroups.map((tra: string) => {
         return {
           field: 'traceGroup',
           operator: 'is',
@@ -193,11 +194,11 @@ export const fetchPanelsVizIdList = async (http: HttpSetup, appPanelId: string) 
 export const calculateAvailability = async (
   http: HttpSetup,
   pplService: PPLService,
-  application: ApplicationType,
+  application: ApplicationType | ApplicationListType,
   availabilityVisId: string,
   setVisWithAvailability: (visList: EuiSelectOption[]) => void
 ): Promise<AvailabilityType> => {
-  let availability = { name: '', color: '', availabilityVisId: '' };
+  let availability = { name: '', color: '', mainVisId: '' };
   const panelId = application.panelId;
   if (!panelId) return availability;
   // Fetches saved visualizations associated to application's panel
@@ -251,7 +252,7 @@ export const calculateAvailability = async (
               availability = {
                 name: '',
                 color: 'null',
-                availabilityVisId: '',
+                mainVisId: '',
               };
             } else {
               if (!availabilityFound) {
@@ -262,7 +263,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -272,7 +273,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -282,7 +283,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -292,7 +293,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -302,7 +303,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -312,7 +313,7 @@ export const calculateAvailability = async (
                       availability = {
                         name: level.name,
                         color: level.color,
-                        availabilityVisId: visualizationId,
+                        mainVisId: visualizationId,
                       };
                       availabilityFound = true;
                     }
@@ -327,7 +328,7 @@ export const calculateAvailability = async (
   }
   setVisWithAvailability(visWithAvailability);
   if (!availabilityFound && visWithAvailability.length > 0) {
-    return { name: '', color: 'undefined', availabilityVisId: '' };
+    return { name: '', color: 'undefined', mainVisId: '' };
   }
   return availability;
 };

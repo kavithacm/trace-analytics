@@ -34,15 +34,16 @@ import {
 import _ from 'lodash';
 import React, { ReactElement, useEffect, useState } from 'react';
 import moment from 'moment';
-import { DeleteModal } from '../../common/helpers/delete_modal';
 import { AppAnalyticsComponentDeps } from '../home';
 import { getCustomModal } from '../../custom_panels/helpers/modal_containers';
+import { getClearModal } from '../helpers/modal_containers';
 import { pageStyles, UI_DATE_FORMAT } from '../../../../common/constants/shared';
-import { ApplicationType, AvailabilityType } from '../../../../common/types/application_analytics';
+import { ApplicationListType } from '../../../../common/types/app_analytics';
+import { AvailabilityType } from '../helpers/types';
 
 interface AppTableProps extends AppAnalyticsComponentDeps {
   loading: boolean;
-  applications: ApplicationType[];
+  applications: ApplicationListType[];
   fetchApplications: () => void;
   renameApplication: (newAppName: string, appId: string) => void;
   deleteApplication: (appList: string[], panelIdList: string[], toastMessage?: string) => void;
@@ -65,7 +66,7 @@ export function AppTable(props: AppTableProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isActionsPopoverOpen, setIsActionsPopoverOpen] = useState(false);
   const [modalLayout, setModalLayout] = useState(<EuiOverlayMask />);
-  const [selectedApplications, setSelectedApplications] = useState<ApplicationType[]>([]);
+  const [selectedApplications, setSelectedApplications] = useState<ApplicationListType[]>([]);
   const createButtonText = 'Create application';
 
   useEffect(() => {
@@ -128,12 +129,12 @@ export function AppTable(props: AppTableProps) {
   const deleteApp = () => {
     const applicationString = `application${selectedApplications.length > 1 ? 's' : ''}`;
     setModalLayout(
-      <DeleteModal
-        onConfirm={onDelete}
-        onCancel={closeModal}
-        title={`Delete ${selectedApplications.length} ${applicationString}`}
-        message={`Are you sure you want to delete the selected ${selectedApplications.length} ${applicationString}?`}
-      />
+      getClearModal(
+        closeModal,
+        onDelete,
+        `Delete ${selectedApplications.length} ${applicationString}`,
+        `Are you sure you want to delete the selected ${selectedApplications.length} ${applicationString}?`
+      )
     );
     showModal();
   };
@@ -181,7 +182,7 @@ export function AppTable(props: AppTableProps) {
     // <EuiContextMenuItem key="addSample">Add sample application</EuiContextMenuItem>,
   ];
 
-  const renderAvailability = (value: AvailabilityType, record: ApplicationType) => {
+  const renderAvailability = (value: AvailabilityType, record: ApplicationListType) => {
     if (value.color === 'loading') {
       return <EuiLoadingSpinner />;
     } else if (value.name) {
@@ -229,10 +230,10 @@ export function AppTable(props: AppTableProps) {
       name: 'Composition',
       sortable: false,
       truncateText: true,
-      render: (value, record) => (
-        <EuiToolTip content={record.servicesEntities.concat(record.traceGroups).join(', ')}>
+      render: (value) => (
+        <EuiToolTip content={value.join(', ')}>
           <EuiText id="compositionColumn" data-test-subj="appAnalytics__compositionColumn">
-            {record.servicesEntities.concat(record.traceGroups).join(', ')}
+            {value.join(', ')}
           </EuiText>
         </EuiToolTip>
       ),
@@ -249,7 +250,7 @@ export function AppTable(props: AppTableProps) {
       sortable: true,
       render: (value) => <EuiText>{moment(value).format(UI_DATE_FORMAT)}</EuiText>,
     },
-  ] as Array<EuiTableFieldDataColumnType<ApplicationType>>;
+  ] as Array<EuiTableFieldDataColumnType<ApplicationListType>>;
 
   return (
     <div style={pageStyles}>

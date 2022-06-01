@@ -208,7 +208,7 @@ describe('Setting availability', () => {
     cy.get('[data-test-subj="setAvailabilityConfigLink"]').click();
     cy.get('.euiTab-isSelected[id="app-analytics-log"]').should('exist', { timeout: timeoutDelay });
     cy.get('[data-test-subj="searchAutocompleteTextArea"]').should('contain.value', availability_default);
-    cy.get('[id="explorerPlotComponent"]').should('exist');
+    cy.get('[id=""]').should('exist');
     cy.get('.euiTab-isSelected[id="availability-panel"]').should('exist');
   });
 });
@@ -251,7 +251,7 @@ describe('Viewing application', () => {
   it('Adds filter when Trace group name is clicked', () => {
     cy.get('[data-test-subj="app-analytics-overviewTab"]').click();
     cy.get('[data-test-subj="dashboard-table-trace-group-name-button"]').contains('client_create_order').click();
-    cy.get('.euiTableRow').should('have.length', 1, { timeout: timeoutDelay });
+    cy.get('.euiTableRow').should('have.length', 1);
     cy.get('[data-test-subj="client_create_orderFilterBadge"]').should('exist');
     cy.get('[data-test-subj="filterBadge"]').click();
     cy.get('[data-test-subj="deleteFilterIcon"]').click();
@@ -560,7 +560,6 @@ describe('Application Analytics home page', () => {
     cy.get('.euiTableRow').first().within(($row) => {
       cy.get('.euiCheckbox').click();
     });
-    cy.wait(delay);
     cy.get('[data-test-subj="appAnalyticsActionsButton"]').click();
     cy.get('[data-test-subj="renameApplicationContextMenuItem"]').click();
     cy.get('[data-test-subj="customModalFieldText"]').clear().focus().type(newName);
@@ -587,8 +586,7 @@ describe('Application Analytics home page', () => {
     });
     cy.get('[data-test-subj="appAnalyticsActionsButton"]').click();
     cy.get('[data-test-subj="deleteApplicationContextMenuItem"]').click();
-    cy.get('[data-test-subj="popoverModal__deleteTextInput"]').type('delete');
-    cy.get('[data-test-subj="popoverModal__deleteButton"').click();
+    cy.get('[data-test-subj="confirmModalConfirmButton"]').click();
     cy.wait(delay);
     cy.get('.euiToast').contains(`Applications successfully deleted!`);
     cy.get(`[data-test-subj="${newName}ApplicationLink"]`).should('not.exist');

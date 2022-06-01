@@ -16,6 +16,7 @@ import { Home as CustomPanelsHome } from './custom_panels/home';
 import { EventAnalytics } from './event_analytics';
 import { Main as NotebooksHome } from './notebooks/components/main';
 import { Home as TraceAnalyticsHome } from './trace_analytics/home';
+import { Home as Synthetics } from './synthetics/home';
 
 interface ObservabilityAppDeps {
   CoreStartProp: CoreStart;
@@ -56,6 +57,21 @@ export const App = ({
         <I18nProvider>
           <>
             <Switch>
+              <Route
+                path="/synthetics"
+                render={(props) => {
+                  chrome.setBreadcrumbs([parentBreadcrumb, { text: 'Synthetics', href: '#/synthetics/', }])
+                  return (
+                    <Synthetics
+                      http={http}
+                      chrome={chrome}
+                      parentBreadcrumb={parentBreadcrumb}
+                      pplService={pplService}
+                      renderProps={props}
+                      />
+                  );
+                }}
+              />
               <Route
                 path={'/application_analytics'}
                 render={(props) => {
@@ -142,3 +158,4 @@ export const App = ({
     </Provider>
   );
 };
+

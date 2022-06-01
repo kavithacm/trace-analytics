@@ -12,6 +12,7 @@ import FieldsReducer from '../../../components/event_analytics/redux/slices/fiel
 import countDistributionReducer from '../../../components/event_analytics/redux/slices/count_distribution_slice';
 import explorerVisualizationReducer from '../../../components/event_analytics/redux/slices/visualization_slice';
 import explorerVisualizationConfigReducer from '../../../components/event_analytics/redux/slices/viualization_config_slice';
+import tableDataReducer from '../../../components/synthetics/redux/fetch_table_data_slice';
 
 const rootReducer = combineReducers({
   // explorer reducers
@@ -22,6 +23,9 @@ const rootReducer = combineReducers({
   countDistribution: countDistributionReducer,
   explorerVisualization: explorerVisualizationReducer,
   explorerVisualizationConfig: explorerVisualizationConfigReducer,
+
+  //synthetics reducers
+  tableData: tableDataReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -32,19 +32,15 @@ import { TraceConfig } from './config_components/trace_config';
 import { ServiceConfig } from './config_components/service_config';
 import { LogConfig } from './config_components/log_config';
 import { PPLReferenceFlyout } from '../../../components/common/helpers';
-import {
-  ApplicationRequestType,
-  ApplicationType,
-  OptionType,
-} from '../../../../common/types/application_analytics';
+import { ApplicationType, OptionType } from '../../../../common/types/app_analytics';
 import { fetchAppById } from '../helpers/utils';
 
 interface CreateAppProps extends AppAnalyticsComponentDeps {
   dslService: DSLService;
   pplService: PPLService;
   setToasts: (title: string, color?: string, text?: ReactChild) => void;
-  createApp: (app: ApplicationRequestType, type: string) => void;
-  updateApp: (appId: string, updateAppData: Partial<ApplicationRequestType>, type: string) => void;
+  createApp: (app: ApplicationType, type: string) => void;
+  updateApp: (appId: string, updateAppData: Partial<ApplicationType>, type: string) => void;
   clearStorage: () => void;
   existingAppId: string;
 }
@@ -74,16 +70,13 @@ export const CreateApp = (props: CreateAppProps) => {
 
   const editMode = existingAppId !== 'undefined';
   const [existingApp, setExistingApp] = useState<ApplicationType>({
-    id: existingAppId,
-    dateCreated: '',
-    dateModified: '',
     name: '',
     description: '',
     baseQuery: '',
     servicesEntities: [],
     traceGroups: [],
     panelId: '',
-    availability: { name: '', color: '', availabilityVisId: '' },
+    availabilityVisId: '',
   });
 
   useEffect(() => {
